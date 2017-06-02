@@ -1,0 +1,234 @@
+---
+
+# https://stackoverflow.com/questions/28852786/automate-process-of-disk-cleanup-cleanmgr-exe-without-user-intervention#35214197
+
+- name: "Install Desktop Experience feature."
+  win_feature:
+    name: "Desktop-Experience"
+    state: present
+    restart: yes
+    include_sub_features: yes
+  register: cleanmgr_desktop_experience_install
+
+- debug:
+    var: cleanmgr_desktop_experience_install
+    verbosity: 1
+
+- name: Reboot to finish Desktop Experience install.
+  win_reboot:
+    shutdown_timeout_sec: 3600
+    reboot_timeout_sec: 3600
+  when: cleanmgr_reboot and ((cleanmgr_desktop_experience_install.reboot_required is defined and cleanmgr_desktop_experience_install.reboot_required) or (cleanmgr_desktop_experience_install.restart_needed is defined and cleanmgr_desktop_experience_install.restart_needed))
+
+- name: "Set Active Setup Temp Folders flag."
+  win_regedit:
+    path: 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Active Setup Temp Folders'
+    name: "StateFlags{{ cleanmgr_sagerun }}"
+    type: dword
+    data: 2
+    state: "{{ (cleanmgr_active_setup_temp_folders|bool)|ternary('present','absent') }}"
+
+- name: "Set BranchCache flag."
+  win_regedit:
+    path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\BranchCache'
+    name: "StateFlags{{ cleanmgr_sagerun }}"
+    type: dword
+    data: 2
+    state: "{{ (cleanmgr_branchcache|bool)|ternary('present','absent') }}"
+
+- name: "Set Downloaded Program Files flag."
+  win_regedit:
+    path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Downloaded Program Files'
+    name: "StateFlags{{ cleanmgr_sagerun }}"
+    type: dword
+    data: 2
+    state: "{{ (cleanmgr_downloaded_program_files|bool)|ternary('present','absent') }}"
+
+- name: "Set Internet Cache Files flag."
+  win_regedit:
+    path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Internet Cache Files'
+    name: "StateFlags{{ cleanmgr_sagerun }}"
+    type: dword
+    data: 2
+    state: "{{ (cleanmgr_internet_cache_files|bool)|ternary('present','absent') }}"
+
+- name: "Set Memory Dump Files flag."
+  win_regedit:
+    path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Memory Dump Files'
+    name: "StateFlags{{ cleanmgr_sagerun }}"
+    type: dword
+    data: 2
+    state: "{{ (cleanmgr_memory_dump_files|bool)|ternary('present','absent') }}"
+
+- name: "Set Old ChkDsk Files flag."
+  win_regedit:
+    path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Old ChkDsk Files'
+    name: "StateFlags{{ cleanmgr_sagerun }}"
+    type: dword
+    data: 2
+    state: "{{ (cleanmgr_old_chkdsk_files|bool)|ternary('present','absent') }}"
+
+- name: "Set Previous Installations flag."
+  win_regedit:
+    path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Previous Installations'
+    name: "StateFlags{{ cleanmgr_sagerun }}"
+    type: dword
+    data: 2
+    state: "{{ (cleanmgr_previous_installations|bool)|ternary('present','absent') }}"
+
+- name: "Set Recycle Bin flag."
+  win_regedit:
+    path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Recycle Bin'
+    name: "StateFlags{{ cleanmgr_sagerun }}"
+    type: dword
+    data: 2
+    state: "{{ (cleanmgr_recycle_bin|bool)|ternary('present','absent') }}"
+
+- name: "Set Service Pack Cleanup flag."
+  win_regedit:
+    path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Service Pack Cleanup'
+    name: "StateFlags{{ cleanmgr_sagerun }}"
+    type: dword
+    data: 2
+    state: "{{ (cleanmgr_service_pack_cleanup|bool)|ternary('present','absent') }}"
+
+- name: "Set Setup Log Files flag."
+  win_regedit:
+    path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Setup Log Files'
+    name: "StateFlags{{ cleanmgr_sagerun }}"
+    type: dword
+    data: 2
+    state: "{{ (cleanmgr_setup_log_files|bool)|ternary('present','absent') }}"
+
+- name: "Set System error memory dump files flag."
+  win_regedit:
+    path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\System error memory dump files'
+    name: "StateFlags{{ cleanmgr_sagerun }}"
+    type: dword
+    data: 2
+    state: "{{ (cleanmgr_system_error_memory_dump_files|bool)|ternary('present','absent') }}"
+
+- name: "Set System error minidump files flag."
+  win_regedit:
+    path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\System error minidump files'
+    name: "StateFlags{{ cleanmgr_sagerun }}"
+    type: dword
+    data: 2
+    state: "{{ (cleanmgr_system_error_minidump_files|bool)|ternary('present','absent') }}"
+
+- name: "Set Temporary File flag."
+  win_regedit:
+    path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Temporary Files'
+    name: "StateFlags{{ cleanmgr_sagerun }}"
+    type: dword
+    data: 2
+    state: "{{ (cleanmgr_temporary_files|bool)|ternary('present','absent') }}"
+
+- name: "Set Temporary Setup Files flag."
+  win_regedit:
+    path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Temporary Setup Files'
+    name: "StateFlags{{ cleanmgr_sagerun }}"
+    type: dword
+    data: 2
+    state: "{{ (cleanmgr_temporary_setup_files|bool)|ternary('present','absent') }}"
+
+- name: "Set Thumbnail Cache flag."
+  win_regedit:
+    path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Thumbnail Cache'
+    name: "StateFlags{{ cleanmgr_sagerun }}"
+    type: dword
+    data: 2
+    state: "{{ (cleanmgr_thumbnail_cache|bool)|ternary('present','absent') }}"
+
+- name: "Set Upgrade Discarded Files flag."
+  win_regedit:
+    path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Upgrade Discarded Files'
+    name: "StateFlags{{ cleanmgr_sagerun }}"
+    type: dword
+    data: 2
+    state: "{{ (cleanmgr_upgrade_discarded_files|bool)|ternary('present','absent') }}"
+
+- name: "Set User file versions flag."
+  win_regedit:
+    path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\User file versions'
+    name: "StateFlags{{ cleanmgr_sagerun }}"
+    type: dword
+    data: 2
+    state: "{{ (cleanmgr_user_file_versions|bool)|ternary('present','absent') }}"
+
+- name: "Set Windows Defender flag."
+  win_regedit:
+    path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Windows Defender'
+    name: "StateFlags{{ cleanmgr_sagerun }}"
+    type: dword
+    data: 2
+    state: "{{ (cleanmgr_windows_defender|bool)|ternary('present','absent') }}"
+
+- name: "Set Windows Error Reporting Archive Files flag."
+  win_regedit:
+    path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Windows Error Reporting Archive Files'
+    name: "StateFlags{{ cleanmgr_sagerun }}"
+    type: dword
+    data: 2
+    state: "{{ (cleanmgr_windows_error_reporting_archive_files|bool)|ternary('present','absent') }}"
+
+- name: "Set Windows Error Reporting Queue Files flag."
+  win_regedit:
+    path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Windows Error Reporting Queue Files'
+    name: "StateFlags{{ cleanmgr_sagerun }}"
+    type: dword
+    data: 2
+    state: "{{ (cleanmgr_windows_error_reporting_queue_files|bool)|ternary('present','absent') }}"
+
+- name: "Set Windows Error Reporting System Archive Files flag."
+  win_regedit:
+    path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Windows Error Reporting System Archive Files'
+    name: "StateFlags{{ cleanmgr_sagerun }}"
+    type: dword
+    data: 2
+    state: "{{ (cleanmgr_windows_error_reporting_system_archive_files|bool)|ternary('present','absent') }}"
+
+- name: "Set Windows Error Reporting System Queue Files flag."
+  win_regedit:
+    path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Windows Error Reporting System Queue Files'
+    name: "StateFlags{{ cleanmgr_sagerun }}"
+    type: dword
+    data: 2
+    state: "{{ (cleanmgr_windows_error_reporting_system_queue_files|bool)|ternary('present','absent') }}"
+
+- name: "Set Windows ESD installation files flag."
+  win_regedit:
+    path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Windows ESD installation files'
+    name: "StateFlags{{ cleanmgr_sagerun }}"
+    type: dword
+    data: 2
+    state: "{{ (cleanmgr_windows_esd_installation_files|bool)|ternary('present','absent') }}"
+
+- name: "Set Update Cleanup flag."
+  win_regedit:
+    path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Update Cleanup'
+    name: "StateFlags{{ cleanmgr_sagerun }}"
+    type: dword
+    data: 2
+    state: "{{ (cleanmgr_update_cleanup|bool)|ternary('present','absent') }}"
+
+- name: "Set Windows Upgrade Log Files flag."
+  win_regedit:
+    path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Windows Upgrade Log Files'
+    name: "StateFlags{{ cleanmgr_sagerun }}"
+    type: dword
+    data: 2
+    state: "{{ (cleanmgr_windows_upgrade_log_files|bool)|ternary('present','absent') }}"
+
+# This will always report a changed result. :(
+- name: "Starting CleanMgr.exe."
+  win_shell: "Start-Process -FilePath CleanMgr.exe -ArgumentList '/sagerun:{{ cleanmgr_sagerun[-4:]|int }}' -WindowStyle Hidden -Wait"
+  args:
+    creates: "{{ lookup('env', 'windir') }}\\Logs\\CBS\\DeepClean.log"
+  register: cleanmgr_process
+  failed_when: "cleanmgr_process.stderr != ''"
+  notify: reboot windows
+
+- debug:
+    var: cleanmgr_process
+    verbosity: 1

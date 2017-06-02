@@ -6,7 +6,12 @@ Install the Desktop Experience feature and run Disk Cleanup on Microsoft Windows
 Role Variables
 --------------
 
-    cleanmgr_reboot: false
+Setting the `cleanmgr_install_reboot` value to `true` allows Ansible to reboot
+the target Windows computer after installing the Desktop Experience feature.
+Ansible doesn't get a result from `cleanmgr.exe` to know if it should reboot or not, so toggling `cleanmgr_cleanmgr_reboot` will always or never reboot after running `cleanmgr.exe`.
+
+    cleanmgr_install_reboot: true
+    cleanmgr_cleanmgr_reboot: false
     cleanmgr_sagerun: "0001"
 
     cleanmgr_active_setup_temp_folders: false

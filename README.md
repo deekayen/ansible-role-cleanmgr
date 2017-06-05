@@ -50,7 +50,7 @@ Example Playbook
 Requirements
 ------------
 
-None.
+Windows 2012R2+. Executing cleanmgr.exe by Powershell over winrm on Windows 2008 doesn't seem to work well.
 
 Dependencies
 ------------

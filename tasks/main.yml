@@ -26,8 +26,6 @@
       state: present
       include_sub_features: yes
   when:
-    - cleanmgr_desktop_experience_install.failed is defined
-    - cleanmgr_desktop_experience_install.failed
     - cleanmgr_desktop_experience_install.exitcode is defined
     - cleanmgr_desktop_experience_install.exitcode == "FailedRestartRequired"
     - cleanmgr_install_reboot

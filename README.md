@@ -45,7 +45,7 @@ Example Playbook
 
     - hosts: servers
       roles:
-         - { role: deekayen.cleanmgr, cleanmgr_reboot: true }
+         - { role: deekayen.cleanmgr, cleanmgr_install_reboot: false }
 
 Requirements
 ------------

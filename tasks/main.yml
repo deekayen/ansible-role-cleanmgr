@@ -13,6 +13,10 @@
     - cleanmgr_desktop_experience_install.failed
     - not cleanmgr_desktop_experience_install.exitcode == "FailedRestartRequired"
 
+- debug:
+    var: cleanmgr_desktop_experience_install
+    verbosity: 1
+
 - block:
   - name: "Reboot Windows to re-try Desktop Experience install."
     win_reboot:
@@ -25,14 +29,11 @@
       name: "Desktop-Experience"
       state: present
       include_sub_features: yes
+    register: cleanmgr_desktop_experience_install
   when:
     - cleanmgr_desktop_experience_install.exitcode is defined
     - cleanmgr_desktop_experience_install.exitcode == "FailedRestartRequired"
     - cleanmgr_install_reboot
-
-- debug:
-    var: cleanmgr_desktop_experience_install
-    verbosity: 1
 
 - name: Reboot to finish Desktop Experience install.
   win_reboot:

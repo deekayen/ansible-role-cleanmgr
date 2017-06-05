@@ -246,7 +246,6 @@
   args:
     creates: "{{ lookup('env', 'windir') }}\\Logs\\CBS\\DeepClean.log"
   register: cleanmgr_process
-  failed_when: not cleanmgr_process.stderr == ''
   notify: reboot windows
 
 - debug:

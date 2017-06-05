@@ -1,6 +1,7 @@
 ---
 
-cleanmgr_reboot: false
+cleanmgr_install_reboot: true
+cleanmgr_cleanmgr_reboot: false
 cleanmgr_sagerun: "0001"
 
 cleanmgr_active_setup_temp_folders: false

@@ -12,7 +12,7 @@ cleanmgr_internet_cache_files: true
 cleanmgr_memory_dump_files: false
 cleanmgr_old_chkdsk_files: false
 cleanmgr_previous_installations: false
-cleanmgr_recycle_bin: true
+cleanmgr_recycle_bin: false
 cleanmgr_service_pack_cleanup: false
 cleanmgr_setup_log_files: false
 cleanmgr_system_error_memory_dump_files: false

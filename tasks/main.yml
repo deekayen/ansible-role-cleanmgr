@@ -2,44 +2,9 @@
 
 # https://stackoverflow.com/questions/28852786/automate-process-of-disk-cleanup-cleanmgr-exe-without-user-intervention#35214197
 
-- name: "Install Desktop Experience feature."
-  win_feature:
-    name: "Desktop-Experience"
-    state: present
-    include_sub_features: yes
-  register: cleanmgr_desktop_experience_install
-  failed_when:
-    - cleanmgr_desktop_experience_install.failed is defined
-    - cleanmgr_desktop_experience_install.failed
-    - not cleanmgr_desktop_experience_install.exitcode == "FailedRestartRequired"
-
-- debug:
-    var: cleanmgr_desktop_experience_install
-    verbosity: 1
-
-- block:
-  - name: "Reboot Windows to re-try Desktop Experience install."
-    win_reboot:
-      shutdown_timeout_sec: 3600
-      reboot_timeout_sec: 3600
-
-  # Let it fail this time if reboot didn't work.
-  - name: "Install Desktop Experience again."
-    win_feature:
-      name: "Desktop-Experience"
-      state: present
-      include_sub_features: yes
-    register: cleanmgr_desktop_experience_install
-  when:
-    - cleanmgr_desktop_experience_install.exitcode is defined
-    - cleanmgr_desktop_experience_install.exitcode == "FailedRestartRequired"
-    - cleanmgr_install_reboot
-
-- name: Reboot to finish Desktop Experience install.
-  win_reboot:
-    shutdown_timeout_sec: 3600
-    reboot_timeout_sec: 3600
-  when: cleanmgr_install_reboot and ((cleanmgr_desktop_experience_install.reboot_required is defined and cleanmgr_desktop_experience_install.reboot_required) or (cleanmgr_desktop_experience_install.restart_needed is defined and cleanmgr_desktop_experience_install.restart_needed))
+- name: include installation desktop experience
+  include_tasks: install-desktop-experience.yml
+  when: cleanmgr_install_desktop_experience
 
 - name: "Set Active Setup Temp Folders flag."
   win_regedit:

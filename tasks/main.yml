@@ -2,12 +2,18 @@
 
 # https://stackoverflow.com/questions/28852786/automate-process-of-disk-cleanup-cleanmgr-exe-without-user-intervention#35214197
 
+- name: "Check for existing cleanmgr binary."
+  win_stat:
+    path: "{{ cleanmgr_install_path }}"
+  register: cleanmgr_path
+
 - name: "Install Desktop Experience feature."
   win_feature:
     name: "Desktop-Experience"
     state: present
     include_sub_features: yes
   register: cleanmgr_desktop_experience_install
+  when: not cleanmgr_path.stat.exists
   failed_when:
     - cleanmgr_desktop_experience_install.failed is defined
     - cleanmgr_desktop_experience_install.failed

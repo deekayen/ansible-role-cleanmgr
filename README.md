@@ -17,6 +17,7 @@ Ansible doesn't get a result from `cleanmgr.exe` to know if it should reboot or 
     cleanmgr_active_setup_temp_folders: false
     cleanmgr_branchcache: false
     cleanmgr_downloaded_program_files: true
+    cleanmgr_install_path: C:/Windows/System32/cleanmgr.exe
     cleanmgr_internet_cache_files: true
     cleanmgr_memory_dump_files: false
     cleanmgr_old_chkdsk_files: false

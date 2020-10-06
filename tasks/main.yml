@@ -48,6 +48,8 @@
   when:
     - cleanmgr_install_reboot
     - ((cleanmgr_desktop_experience_install.reboot_required is defined and cleanmgr_desktop_experience_install.reboot_required) or (cleanmgr_desktop_experience_install.restart_needed is defined and cleanmgr_desktop_experience_install.restart_needed))
+  tags:
+    - skip_ansible_lint
 
 - name: "Set Active Setup Temp Folders flag."
   win_regedit:

@@ -5,11 +5,9 @@ language: python
 
 before_script:
   - ansible-lint --version
-  - yamllint --version
 
 script:
   - ansible-lint .
-  - yamllint .
 
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/

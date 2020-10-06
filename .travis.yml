@@ -3,16 +3,13 @@
 dist: focal
 language: python
 
-addons:
-  apt:
-    packages:
-    - ansible-lint
-
 before_script:
   - ansible-lint --version
+  - yamllint --version
 
 script:
   - ansible-lint .
+  - yamllint .
 
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/

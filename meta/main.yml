@@ -1,4 +1,5 @@
 galaxy_info:
+  role_name: cleanmgr
   author: David Norman
   description: Install Desktop Experience and run Disk Cleanup on Microsoft Windows.
 
@@ -6,7 +7,7 @@ galaxy_info:
 
   min_ansible_version: 2.3
 
-  github_branch: master
+  github_branch: main
   issue_tracker_url: https://github.com/deekayen/ansible-role-cleanmgr/issues
 
   platforms:

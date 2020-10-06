@@ -45,7 +45,9 @@
   win_reboot:
     shutdown_timeout_sec: 3600
     reboot_timeout_sec: 3600
-  when: cleanmgr_install_reboot and ((cleanmgr_desktop_experience_install.reboot_required is defined and cleanmgr_desktop_experience_install.reboot_required) or (cleanmgr_desktop_experience_install.restart_needed is defined and cleanmgr_desktop_experience_install.restart_needed))
+  when:
+    - cleanmgr_install_reboot
+    - ((cleanmgr_desktop_experience_install.reboot_required is defined and cleanmgr_desktop_experience_install.reboot_required) or (cleanmgr_desktop_experience_install.restart_needed is defined and cleanmgr_desktop_experience_install.restart_needed))
 
 - name: "Set Active Setup Temp Folders flag."
   win_regedit:

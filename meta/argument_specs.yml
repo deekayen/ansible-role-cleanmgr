@@ -1,0 +1,164 @@
+---
+argument_specs:
+  main:
+    short_description: Install Desktop Experience and run Disk Cleanup on Microsoft Windows.
+    description:
+      - Installs the Desktop Experience feature when cleanmgr.exe is missing,
+        sets StateFlags registry values selecting which Disk Cleanup handlers
+        run, then starts CleanMgr.exe with the configured sagerun profile.
+    author:
+      - David Norman
+    options:
+      cleanmgr_install_reboot:
+        type: bool
+        default: true
+        description: >-
+          Allow Ansible to reboot Windows when the Desktop Experience feature
+          install requires a restart to retry or finish.
+
+      cleanmgr_cleanmgr_reboot:
+        type: bool
+        default: false
+        description: >-
+          Reboot Windows after CleanMgr.exe runs. CleanMgr.exe gives no
+          indication whether a reboot is needed, so this always or never
+          reboots.
+
+      cleanmgr_sagerun:
+        type: str
+        default: "0001"
+        description: >-
+          Four-digit Disk Cleanup profile number used in the StateFlags
+          registry value names and passed to CleanMgr.exe as /sagerun.
+
+      cleanmgr_install_path:
+        type: str
+        default: C:/Windows/System32/cleanmgr.exe
+        description: >-
+          Path to the cleanmgr.exe binary, used to detect whether the Desktop
+          Experience feature is already installed.
+
+      cleanmgr_active_setup_temp_folders:
+        type: bool
+        default: false
+        description: Clean the Active Setup Temp Folders handler.
+
+      cleanmgr_branchcache:
+        type: bool
+        default: false
+        description: Clean the BranchCache handler.
+
+      cleanmgr_downloaded_program_files:
+        type: bool
+        default: true
+        description: Clean the Downloaded Program Files handler.
+
+      cleanmgr_internet_cache_files:
+        type: bool
+        default: true
+        description: Clean the Internet Cache Files handler.
+
+      cleanmgr_memory_dump_files:
+        type: bool
+        default: false
+        description: Clean the Memory Dump Files handler.
+
+      cleanmgr_old_chkdsk_files:
+        type: bool
+        default: false
+        description: Clean the Old ChkDsk Files handler.
+
+      cleanmgr_previous_installations:
+        type: bool
+        default: false
+        description: Clean the Previous Installations handler.
+
+      cleanmgr_recycle_bin:
+        type: bool
+        default: false
+        description: Clean the Recycle Bin handler.
+
+      cleanmgr_service_pack_cleanup:
+        type: bool
+        default: false
+        description: Clean the Service Pack Cleanup handler.
+
+      cleanmgr_setup_log_files:
+        type: bool
+        default: false
+        description: Clean the Setup Log Files handler.
+
+      cleanmgr_system_error_memory_dump_files:
+        type: bool
+        default: false
+        description: Clean the System error memory dump files handler.
+
+      cleanmgr_system_error_minidump_files:
+        type: bool
+        default: false
+        description: Clean the System error minidump files handler.
+
+      cleanmgr_temporary_files:
+        type: bool
+        default: false
+        description: Clean the Temporary Files handler.
+
+      cleanmgr_temporary_setup_files:
+        type: bool
+        default: false
+        description: Clean the Temporary Setup Files handler.
+
+      cleanmgr_thumbnail_cache:
+        type: bool
+        default: false
+        description: Clean the Thumbnail Cache handler.
+
+      cleanmgr_upgrade_discarded_files:
+        type: bool
+        default: false
+        description: Clean the Upgrade Discarded Files handler.
+
+      cleanmgr_user_file_versions:
+        type: bool
+        default: false
+        description: Clean the User file versions handler.
+
+      cleanmgr_windows_defender:
+        type: bool
+        default: false
+        description: Clean the Windows Defender handler.
+
+      cleanmgr_windows_error_reporting_archive_files:
+        type: bool
+        default: false
+        description: Clean the Windows Error Reporting Archive Files handler.
+
+      cleanmgr_windows_error_reporting_queue_files:
+        type: bool
+        default: false
+        description: Clean the Windows Error Reporting Queue Files handler.
+
+      cleanmgr_windows_error_reporting_system_archive_files:
+        type: bool
+        default: false
+        description: Clean the Windows Error Reporting System Archive Files handler.
+
+      cleanmgr_windows_error_reporting_system_queue_files:
+        type: bool
+        default: false
+        description: Clean the Windows Error Reporting System Queue Files handler.
+
+      cleanmgr_windows_esd_installation_files:
+        type: bool
+        default: false
+        description: Clean the Windows ESD installation files handler.
+
+      cleanmgr_update_cleanup:
+        type: bool
+        default: true
+        description: Clean the Update Cleanup handler.
+
+      cleanmgr_windows_upgrade_log_files:
+        type: bool
+        default: false
+        description: Clean the Windows Upgrade Log Files handler.

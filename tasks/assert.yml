@@ -1,0 +1,14 @@
+---
+- name: Assert cleanmgr_sagerun is a four-digit profile number string.
+  ansible.builtin.assert:
+    that:
+      - cleanmgr_sagerun is match('^[0-9]{4}$')
+    fail_msg: "cleanmgr_sagerun must be a four-digit string like '0001', got: {{ cleanmgr_sagerun }}"
+    quiet: true
+
+- name: Assert cleanmgr_install_path is an absolute Windows path.
+  ansible.builtin.assert:
+    that:
+      - cleanmgr_install_path is match('^[A-Za-z]:')
+    fail_msg: "cleanmgr_install_path must be an absolute Windows path like C:/Windows/System32/cleanmgr.exe, got: {{ cleanmgr_install_path }}"
+    quiet: true

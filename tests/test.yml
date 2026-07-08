@@ -1,0 +1,11 @@
+---
+- name: Apply the cleanmgr role for a syntax check.
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  roles:
+    - role: deekayen.cleanmgr
+      vars:
+        cleanmgr_install_reboot: false
+        cleanmgr_cleanmgr_reboot: false

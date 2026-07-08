@@ -1,7 +1,5 @@
 ---
-
-- name: reboot windows
-  win_reboot:
-    shutdown_timeout_sec: 3600
-    reboot_timeout_sec: 3600
-  when: cleanmgr_cleanmgr_reboot
+- name: Reboot Windows after disk cleanup.
+  ansible.windows.win_reboot:
+    reboot_timeout: 3600
+  when: cleanmgr_cleanmgr_reboot | bool

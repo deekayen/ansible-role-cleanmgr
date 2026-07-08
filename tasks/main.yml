@@ -1,17 +1,21 @@
 ---
-
 # https://stackoverflow.com/questions/28852786/automate-process-of-disk-cleanup-cleanmgr-exe-without-user-intervention#35214197
 
-- name: "Check for existing cleanmgr binary."
-  win_stat:
+- name: Validate role variables.
+  ansible.builtin.import_tasks: assert.yml
+  tags:
+    - always
+
+- name: Check for existing cleanmgr binary.
+  ansible.windows.win_stat:
     path: "{{ cleanmgr_install_path }}"
   register: cleanmgr_path
 
-- name: "Install Desktop Experience feature."
-  win_feature:
-    name: "Desktop-Experience"
+- name: Install Desktop Experience feature.
+  ansible.windows.win_feature:
+    name: Desktop-Experience
     state: present
-    include_sub_features: yes
+    include_sub_features: true
   register: cleanmgr_desktop_experience_install
   when: not cleanmgr_path.stat.exists
   failed_when:
@@ -19,246 +23,253 @@
     - cleanmgr_desktop_experience_install.failed
     - not cleanmgr_desktop_experience_install.exitcode == "FailedRestartRequired"
 
-- debug:
+- name: Show the Desktop Experience install result.
+  ansible.builtin.debug:
     var: cleanmgr_desktop_experience_install
     verbosity: 1
 
-- block:
-  - name: "Reboot Windows to re-try Desktop Experience install."
-    win_reboot:
-      shutdown_timeout_sec: 3600
-      reboot_timeout_sec: 3600
-
-  # Let it fail this time if reboot didn't work.
-  - name: "Install Desktop Experience again."
-    win_feature:
-      name: "Desktop-Experience"
-      state: present
-      include_sub_features: yes
-    register: cleanmgr_desktop_experience_install
+- name: Retry the Desktop Experience install after a reboot.
   when:
     - cleanmgr_desktop_experience_install.exitcode is defined
     - cleanmgr_desktop_experience_install.exitcode == "FailedRestartRequired"
     - cleanmgr_install_reboot
+  block:
+    - name: Reboot Windows to re-try Desktop Experience install.
+      ansible.windows.win_reboot:
+        reboot_timeout: 3600
+
+    # Let it fail this time if the reboot didn't work.
+    - name: Install Desktop Experience again.
+      ansible.windows.win_feature:
+        name: Desktop-Experience
+        state: present
+        include_sub_features: true
+      register: cleanmgr_desktop_experience_install
 
 - name: Reboot to finish Desktop Experience install.
-  win_reboot:
-    shutdown_timeout_sec: 3600
-    reboot_timeout_sec: 3600
+  ansible.windows.win_reboot:
+    reboot_timeout: 3600
   when:
     - cleanmgr_install_reboot
-    - ((cleanmgr_desktop_experience_install.reboot_required is defined and cleanmgr_desktop_experience_install.reboot_required) or (cleanmgr_desktop_experience_install.restart_needed is defined and cleanmgr_desktop_experience_install.restart_needed))
-  tags:
-    - skip_ansible_lint
+    - (cleanmgr_desktop_experience_install.reboot_required is defined and
+       cleanmgr_desktop_experience_install.reboot_required) or
+      (cleanmgr_desktop_experience_install.restart_needed is defined and
+       cleanmgr_desktop_experience_install.restart_needed)
 
-- name: "Set Active Setup Temp Folders flag."
-  win_regedit:
+- name: Set Active Setup Temp Folders flag.
+  ansible.windows.win_regedit:
     path: 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Active Setup Temp Folders'
     name: "StateFlags{{ cleanmgr_sagerun }}"
     type: dword
     data: 2
-    state: "{{ (cleanmgr_active_setup_temp_folders|bool)|ternary('present','absent') }}"
+    state: "{{ cleanmgr_active_setup_temp_folders | bool | ternary('present', 'absent') }}"
 
-- name: "Set BranchCache flag."
-  win_regedit:
+- name: Set BranchCache flag.
+  ansible.windows.win_regedit:
     path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\BranchCache'
     name: "StateFlags{{ cleanmgr_sagerun }}"
     type: dword
     data: 2
-    state: "{{ (cleanmgr_branchcache|bool)|ternary('present','absent') }}"
+    state: "{{ cleanmgr_branchcache | bool | ternary('present', 'absent') }}"
 
-- name: "Set Downloaded Program Files flag."
-  win_regedit:
+- name: Set Downloaded Program Files flag.
+  ansible.windows.win_regedit:
     path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Downloaded Program Files'
     name: "StateFlags{{ cleanmgr_sagerun }}"
     type: dword
     data: 2
-    state: "{{ (cleanmgr_downloaded_program_files|bool)|ternary('present','absent') }}"
+    state: "{{ cleanmgr_downloaded_program_files | bool | ternary('present', 'absent') }}"
 
-- name: "Set Internet Cache Files flag."
-  win_regedit:
+- name: Set Internet Cache Files flag.
+  ansible.windows.win_regedit:
     path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Internet Cache Files'
     name: "StateFlags{{ cleanmgr_sagerun }}"
     type: dword
     data: 2
-    state: "{{ (cleanmgr_internet_cache_files|bool)|ternary('present','absent') }}"
+    state: "{{ cleanmgr_internet_cache_files | bool | ternary('present', 'absent') }}"
 
-- name: "Set Memory Dump Files flag."
-  win_regedit:
+- name: Set Memory Dump Files flag.
+  ansible.windows.win_regedit:
     path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Memory Dump Files'
     name: "StateFlags{{ cleanmgr_sagerun }}"
     type: dword
     data: 2
-    state: "{{ (cleanmgr_memory_dump_files|bool)|ternary('present','absent') }}"
+    state: "{{ cleanmgr_memory_dump_files | bool | ternary('present', 'absent') }}"
 
-- name: "Set Old ChkDsk Files flag."
-  win_regedit:
+- name: Set Old ChkDsk Files flag.
+  ansible.windows.win_regedit:
     path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Old ChkDsk Files'
     name: "StateFlags{{ cleanmgr_sagerun }}"
     type: dword
     data: 2
-    state: "{{ (cleanmgr_old_chkdsk_files|bool)|ternary('present','absent') }}"
+    state: "{{ cleanmgr_old_chkdsk_files | bool | ternary('present', 'absent') }}"
 
-- name: "Set Previous Installations flag."
-  win_regedit:
+- name: Set Previous Installations flag.
+  ansible.windows.win_regedit:
     path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Previous Installations'
     name: "StateFlags{{ cleanmgr_sagerun }}"
     type: dword
     data: 2
-    state: "{{ (cleanmgr_previous_installations|bool)|ternary('present','absent') }}"
+    state: "{{ cleanmgr_previous_installations | bool | ternary('present', 'absent') }}"
 
-- name: "Set Recycle Bin flag."
-  win_regedit:
+- name: Set Recycle Bin flag.
+  ansible.windows.win_regedit:
     path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Recycle Bin'
     name: "StateFlags{{ cleanmgr_sagerun }}"
     type: dword
     data: 2
-    state: "{{ (cleanmgr_recycle_bin|bool)|ternary('present','absent') }}"
+    state: "{{ cleanmgr_recycle_bin | bool | ternary('present', 'absent') }}"
 
-- name: "Set Service Pack Cleanup flag."
-  win_regedit:
+- name: Set Service Pack Cleanup flag.
+  ansible.windows.win_regedit:
     path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Service Pack Cleanup'
     name: "StateFlags{{ cleanmgr_sagerun }}"
     type: dword
     data: 2
-    state: "{{ (cleanmgr_service_pack_cleanup|bool)|ternary('present','absent') }}"
+    state: "{{ cleanmgr_service_pack_cleanup | bool | ternary('present', 'absent') }}"
 
-- name: "Set Setup Log Files flag."
-  win_regedit:
+- name: Set Setup Log Files flag.
+  ansible.windows.win_regedit:
     path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Setup Log Files'
     name: "StateFlags{{ cleanmgr_sagerun }}"
     type: dword
     data: 2
-    state: "{{ (cleanmgr_setup_log_files|bool)|ternary('present','absent') }}"
+    state: "{{ cleanmgr_setup_log_files | bool | ternary('present', 'absent') }}"
 
-- name: "Set System error memory dump files flag."
-  win_regedit:
+- name: Set System error memory dump files flag.
+  ansible.windows.win_regedit:
     path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\System error memory dump files'
     name: "StateFlags{{ cleanmgr_sagerun }}"
     type: dword
     data: 2
-    state: "{{ (cleanmgr_system_error_memory_dump_files|bool)|ternary('present','absent') }}"
+    state: "{{ cleanmgr_system_error_memory_dump_files | bool | ternary('present', 'absent') }}"
 
-- name: "Set System error minidump files flag."
-  win_regedit:
+- name: Set System error minidump files flag.
+  ansible.windows.win_regedit:
     path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\System error minidump files'
     name: "StateFlags{{ cleanmgr_sagerun }}"
     type: dword
     data: 2
-    state: "{{ (cleanmgr_system_error_minidump_files|bool)|ternary('present','absent') }}"
+    state: "{{ cleanmgr_system_error_minidump_files | bool | ternary('present', 'absent') }}"
 
-- name: "Set Temporary File flag."
-  win_regedit:
+- name: Set Temporary Files flag.
+  ansible.windows.win_regedit:
     path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Temporary Files'
     name: "StateFlags{{ cleanmgr_sagerun }}"
     type: dword
     data: 2
-    state: "{{ (cleanmgr_temporary_files|bool)|ternary('present','absent') }}"
+    state: "{{ cleanmgr_temporary_files | bool | ternary('present', 'absent') }}"
 
-- name: "Set Temporary Setup Files flag."
-  win_regedit:
+- name: Set Temporary Setup Files flag.
+  ansible.windows.win_regedit:
     path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Temporary Setup Files'
     name: "StateFlags{{ cleanmgr_sagerun }}"
     type: dword
     data: 2
-    state: "{{ (cleanmgr_temporary_setup_files|bool)|ternary('present','absent') }}"
+    state: "{{ cleanmgr_temporary_setup_files | bool | ternary('present', 'absent') }}"
 
-- name: "Set Thumbnail Cache flag."
-  win_regedit:
+- name: Set Thumbnail Cache flag.
+  ansible.windows.win_regedit:
     path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Thumbnail Cache'
     name: "StateFlags{{ cleanmgr_sagerun }}"
     type: dword
     data: 2
-    state: "{{ (cleanmgr_thumbnail_cache|bool)|ternary('present','absent') }}"
+    state: "{{ cleanmgr_thumbnail_cache | bool | ternary('present', 'absent') }}"
 
-- name: "Set Upgrade Discarded Files flag."
-  win_regedit:
+- name: Set Upgrade Discarded Files flag.
+  ansible.windows.win_regedit:
     path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Upgrade Discarded Files'
     name: "StateFlags{{ cleanmgr_sagerun }}"
     type: dword
     data: 2
-    state: "{{ (cleanmgr_upgrade_discarded_files|bool)|ternary('present','absent') }}"
+    state: "{{ cleanmgr_upgrade_discarded_files | bool | ternary('present', 'absent') }}"
 
-- name: "Set User file versions flag."
-  win_regedit:
+- name: Set User file versions flag.
+  ansible.windows.win_regedit:
     path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\User file versions'
     name: "StateFlags{{ cleanmgr_sagerun }}"
     type: dword
     data: 2
-    state: "{{ (cleanmgr_user_file_versions|bool)|ternary('present','absent') }}"
+    state: "{{ cleanmgr_user_file_versions | bool | ternary('present', 'absent') }}"
 
-- name: "Set Windows Defender flag."
-  win_regedit:
+- name: Set Windows Defender flag.
+  ansible.windows.win_regedit:
     path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Windows Defender'
     name: "StateFlags{{ cleanmgr_sagerun }}"
     type: dword
     data: 2
-    state: "{{ (cleanmgr_windows_defender|bool)|ternary('present','absent') }}"
+    state: "{{ cleanmgr_windows_defender | bool | ternary('present', 'absent') }}"
 
-- name: "Set Windows Error Reporting Archive Files flag."
-  win_regedit:
+- name: Set Windows Error Reporting Archive Files flag.
+  ansible.windows.win_regedit:
     path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Windows Error Reporting Archive Files'
     name: "StateFlags{{ cleanmgr_sagerun }}"
     type: dword
     data: 2
-    state: "{{ (cleanmgr_windows_error_reporting_archive_files|bool)|ternary('present','absent') }}"
+    state: "{{ cleanmgr_windows_error_reporting_archive_files | bool | ternary('present', 'absent') }}"
 
-- name: "Set Windows Error Reporting Queue Files flag."
-  win_regedit:
+- name: Set Windows Error Reporting Queue Files flag.
+  ansible.windows.win_regedit:
     path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Windows Error Reporting Queue Files'
     name: "StateFlags{{ cleanmgr_sagerun }}"
     type: dword
     data: 2
-    state: "{{ (cleanmgr_windows_error_reporting_queue_files|bool)|ternary('present','absent') }}"
+    state: "{{ cleanmgr_windows_error_reporting_queue_files | bool | ternary('present', 'absent') }}"
 
-- name: "Set Windows Error Reporting System Archive Files flag."
-  win_regedit:
+- name: Set Windows Error Reporting System Archive Files flag.
+  ansible.windows.win_regedit:
     path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Windows Error Reporting System Archive Files'
     name: "StateFlags{{ cleanmgr_sagerun }}"
     type: dword
     data: 2
-    state: "{{ (cleanmgr_windows_error_reporting_system_archive_files|bool)|ternary('present','absent') }}"
+    state: "{{ cleanmgr_windows_error_reporting_system_archive_files | bool | ternary('present', 'absent') }}"
 
-- name: "Set Windows Error Reporting System Queue Files flag."
-  win_regedit:
+- name: Set Windows Error Reporting System Queue Files flag.
+  ansible.windows.win_regedit:
     path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Windows Error Reporting System Queue Files'
     name: "StateFlags{{ cleanmgr_sagerun }}"
     type: dword
     data: 2
-    state: "{{ (cleanmgr_windows_error_reporting_system_queue_files|bool)|ternary('present','absent') }}"
+    state: "{{ cleanmgr_windows_error_reporting_system_queue_files | bool | ternary('present', 'absent') }}"
 
-- name: "Set Windows ESD installation files flag."
-  win_regedit:
+- name: Set Windows ESD installation files flag.
+  ansible.windows.win_regedit:
     path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Windows ESD installation files'
     name: "StateFlags{{ cleanmgr_sagerun }}"
     type: dword
     data: 2
-    state: "{{ (cleanmgr_windows_esd_installation_files|bool)|ternary('present','absent') }}"
+    state: "{{ cleanmgr_windows_esd_installation_files | bool | ternary('present', 'absent') }}"
 
-- name: "Set Update Cleanup flag."
-  win_regedit:
+- name: Set Update Cleanup flag.
+  ansible.windows.win_regedit:
     path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Update Cleanup'
     name: "StateFlags{{ cleanmgr_sagerun }}"
     type: dword
     data: 2
-    state: "{{ (cleanmgr_update_cleanup|bool)|ternary('present','absent') }}"
+    state: "{{ cleanmgr_update_cleanup | bool | ternary('present', 'absent') }}"
 
-- name: "Set Windows Upgrade Log Files flag."
-  win_regedit:
+- name: Set Windows Upgrade Log Files flag.
+  ansible.windows.win_regedit:
     path: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Windows Upgrade Log Files'
     name: "StateFlags{{ cleanmgr_sagerun }}"
     type: dword
     data: 2
-    state: "{{ (cleanmgr_windows_upgrade_log_files|bool)|ternary('present','absent') }}"
+    state: "{{ cleanmgr_windows_upgrade_log_files | bool | ternary('present', 'absent') }}"
 
-# This will always report a changed result. :(
-- name: "Starting CleanMgr.exe."
-  win_shell: "Start-Process -FilePath CleanMgr.exe -ArgumentList '/sagerun:{{ cleanmgr_sagerun[-4:]|int }}' -WindowStyle Hidden -Wait"
+# CleanMgr.exe leaves DeepClean.log behind when it finishes, which the
+# creates argument uses to skip re-running the cleanup.
+- name: Start CleanMgr.exe.
+  ansible.windows.win_shell: >-
+    Start-Process -FilePath CleanMgr.exe
+    -ArgumentList '/sagerun:{{ cleanmgr_sagerun[-4:] | int }}'
+    -WindowStyle Hidden -Wait
   args:
-    creates: "{{ lookup('env', 'windir') }}\\Logs\\CBS\\DeepClean.log"
+    creates: '%windir%\Logs\CBS\DeepClean.log'
   register: cleanmgr_process
-  notify: reboot windows
+  changed_when: cleanmgr_process.rc == 0
+  notify: Reboot Windows after disk cleanup.
 
-- debug:
+- name: Show the CleanMgr.exe process result.
+  ansible.builtin.debug:
     var: cleanmgr_process
     verbosity: 1
